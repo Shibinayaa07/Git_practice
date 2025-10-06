@@ -218,8 +218,8 @@ display: inline-block;
             let loadingTimeout;
 
             function hideLoader() {
-                loaderContainer.classList.add('hide');
-                contentWrapper.classList.add('show');
+                if (loaderContainer) loaderContainer.classList.add('hide');
+                if (contentWrapper) contentWrapper.classList.add('show');
             }
 
             function showError() {

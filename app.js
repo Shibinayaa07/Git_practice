@@ -2,7 +2,8 @@
 
 class MessManagementAPI {
     constructor() {
-        this.baseURL = window.location.origin + '/api';
+        // Use explicit index.php to avoid server rewrite requirements
+        this.baseURL = window.location.origin + '/api/index.php';
         this.token = localStorage.getItem('auth_token');
     }
 
@@ -26,6 +27,16 @@ class MessManagementAPI {
 
             const response = await fetch(`${this.baseURL}/${endpoint}`, config);
             const result = await response.json();
+
+            if (response.status === 401 || result.message === 'Unauthorized') {
+                localStorage.removeItem('auth_token');
+                this.token = null;
+                // Redirect to login if unauthorized
+                if (!window.location.pathname.endsWith('login.php')) {
+                    window.location.href = 'login.php';
+                }
+                throw new Error('Unauthorized');
+            }
 
             if (!result.success) {
                 throw new Error(result.message || 'API request failed');
@@ -70,15 +81,23 @@ class MessManagementAPI {
 
     // Authentication methods
     async login(username, password) {
-        return await this.request('auth', 'POST', {
+        const result = await this.request('auth', 'POST', {
             action: 'login',
             username: username,
             password: password
         });
+        if (result.token) {
+            this.token = result.token;
+            localStorage.setItem('auth_token', result.token);
+        }
+        return result;
     }
 
     async logout() {
-        return await this.request('auth', 'POST', { action: 'logout' });
+        const res = await this.request('auth', 'POST', { action: 'logout' });
+        localStorage.removeItem('auth_token');
+        this.token = null;
+        return res;
     }
 }
 
@@ -122,6 +141,11 @@ class FormHandler {
             
             const endpoint = form.getAttribute('data-endpoint');
             const method = form.getAttribute('data-method') || 'POST';
+            
+            // Defaults for special token submissions
+            if (endpoint === 'mess-tokens' && !data.token_type) {
+                data.token_type = 'Special';
+            }
             
             const result = await api.request(endpoint, method, data);
             
@@ -383,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
         breakfastForm.setAttribute('data-api-form', 'true');
         breakfastForm.setAttribute('data-endpoint', 'mess-menu');
         breakfastForm.setAttribute('data-method', 'POST');
-        breakfastForm.setAttribute('data-refresh-table', 'messMenu');
+        breakfastForm.setAttribute('data-refresh-table', 'messMenuTable');
     }
 
     // Lunch form handler
@@ -392,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         lunchForm.setAttribute('data-api-form', 'true');
         lunchForm.setAttribute('data-endpoint', 'mess-menu');
         lunchForm.setAttribute('data-method', 'POST');
-        lunchForm.setAttribute('data-refresh-table', 'messMenu');
+        lunchForm.setAttribute('data-refresh-table', 'messMenuTable');
     }
 
     // Snacks form handler
@@ -401,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
         snacksForm.setAttribute('data-api-form', 'true');
         snacksForm.setAttribute('data-endpoint', 'mess-menu');
         snacksForm.setAttribute('data-method', 'POST');
-        snacksForm.setAttribute('data-refresh-table', 'messMenu');
+        snacksForm.setAttribute('data-refresh-table', 'messMenuTable');
     }
 
     // Dinner form handler
@@ -410,8 +434,18 @@ document.addEventListener('DOMContentLoaded', function() {
         dinnerForm.setAttribute('data-api-form', 'true');
         dinnerForm.setAttribute('data-endpoint', 'mess-menu');
         dinnerForm.setAttribute('data-method', 'POST');
-        dinnerForm.setAttribute('data-refresh-table', 'messMenu');
+        dinnerForm.setAttribute('data-refresh-table', 'messMenuTable');
     }
+
+        // Special token form handler
+        const tokenForm = document.getElementById('tokenenableForm');
+        if (tokenForm) {
+            tokenForm.setAttribute('data-api-form', 'true');
+            tokenForm.setAttribute('data-endpoint', 'mess-tokens');
+            tokenForm.setAttribute('data-method', 'POST');
+            tokenForm.setAttribute('data-refresh-table', 'messTokensTable');
+            tokenForm.addEventListener('submit', (e) => e.preventDefault());
+        }
 
     // Update save buttons to work with forms
     document.querySelectorAll('.modal-footer button[type="button"]:not([data-bs-dismiss])').forEach(button => {

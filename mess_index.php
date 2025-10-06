@@ -1,4 +1,11 @@
 
+<?php
+require_once __DIR__ . '/config.php';
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -231,17 +238,17 @@
                                 </button>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <button type="button" class="btn w-100" id="breakfast"data-bs-toggle="modal" data-bs-target="#lunchModal">
+                                <button type="button" class="btn w-100" id="lunch" data-bs-toggle="modal" data-bs-target="#lunchModal">
                                     <i class="fas fa-hamburger"></i> Lunch
                                 </button>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <button type="button" class="btn w-100" id="breakfast"data-bs-toggle="modal" data-bs-target="#snacksModal">
+                                <button type="button" class="btn w-100" id="snacks" data-bs-toggle="modal" data-bs-target="#snacksModal">
                                     <i class="fas fa-cookie"></i> Snacks
                                 </button>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <button type="button" class="btn  w-100" id="breakfast"data-bs-toggle="modal" data-bs-target="#dinnerModal">
+                                <button type="button" class="btn  w-100" id="dinner" data-bs-toggle="modal" data-bs-target="#dinnerModal">
                                     <i class="fas fa-utensils"></i> Dinner
                                 </button>
                             </div>
@@ -384,7 +391,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                         <form id="snacksMenuForm" method="post"></form>
+                         <form id="snacksMenuForm" method="post">
                             <div class="mb-3">
                                 <label for="snacksDate" class="form-label">Date</label>
                                 <input type="date" class="form-control" id="snacksDate" name="date" required>
@@ -406,7 +413,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-primary" data-save-form="snacksMenuForm">Save changes</button>
                     </div>
                 </div>
             </div>
@@ -420,7 +427,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                         <form id="dinnerMenuForm" method="post"></form>
+                         <form id="dinnerMenuForm" method="post">
                             <div class="mb-3">
                                 <label for="dinnerDate" class="form-label">Date</label>
                                 <input type="date" class="form-control" id="dinnerDate" name="date" required>
@@ -442,7 +449,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-primary" data-save-form="dinnerMenuForm">Save changes</button>
                     </div>
                 </div>
             </div>
@@ -456,38 +463,37 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="tokenenableForm" method="post"></form>
+                        <form id="tokenenableForm" method="post">
                         <div class="mb-3">
                             <label for="tokenfromDate" class="form-label">From Date</label>
-                            <input type="date" class="form-control" id="tokenfromDate" name="date" required>
+                            <input type="date" class="form-control" id="tokenfromDate" name="from_date" required>
                         </div>
                         <div class="mb-3">
                             <label for="tokenfromTime" class="form-label">From Time</label>
-                            <input type="time" class="form-control" id="tokenfromTime" name="time" required>
+                            <input type="time" class="form-control" id="tokenfromTime" name="from_time" required>
                         </div>
                         <div class="mb-3">
                             <label for="tokentoDate" class="form-label">To Date</label>
-                            <input type="date" class="form-control" id="tokentoDate" name="date" required>
+                            <input type="date" class="form-control" id="tokentoDate" name="to_date" required>
                         </div>
                         <div class="mb-3">
                             <label for="tokentoTime" class="form-label">To Time</label>
-                            <input type="time" class="form-control" id="tokentoTime" name="time" required>
+                            <input type="time" class="form-control" id="tokentoTime" name="to_time" required>
                         </div>
                         <div class="mb-3">
-                            <label for="breakfastItems" class="form-label">Menu Items</label>
-                            <textarea class="form-control" id="breakfastItems" name="items" rows="3" required></textarea>
+                            <label for="specialtokenItems" class="form-label">Menu Items</label>
+                            <textarea class="form-control" id="specialtokenItems" name="items" rows="3" required></textarea>
                         </div>
                         
                         <div class="mb-3">
                             <label for="specialtokenFee" class="form-label">Fee (₹)</label>
                             <input type="number" step="0.01" class="form-control" id="specialtokenFee" name="fee" required>
                         </div>
-                        
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Enable token </button>
+                        <button type="button" class="btn btn-primary" data-save-form="tokenenableForm">Enable token </button>
                     </div>
                 </div>
             </div>
