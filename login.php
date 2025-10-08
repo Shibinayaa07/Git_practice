@@ -1,9 +1,9 @@
 <?php
 require_once 'config.php';
 
-// Simple authentication check
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+// If already authenticated, go to dashboard
+if (isset($_SESSION['user_id'])) {
+    header('Location: mess_index.php');
     exit;
 }
 ?>
@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Mess Management System</title>
+<title>Login - Mess Management System</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <style>
@@ -165,7 +165,8 @@ if (!isset($_SESSION['user_id'])) {
             submitBtn.disabled = true;
             
             try {
-                const response = await fetch('api.php/auth', {
+                const base = window.location.origin + '/api/index.php';
+                const response = await fetch(base + '/auth', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -181,6 +182,10 @@ if (!isset($_SESSION['user_id'])) {
                 
                 if (result.success) {
                     showAlert('success', 'Login successful! Redirecting...');
+                    // Save token for API usage
+                    if (result.token) {
+                        localStorage.setItem('auth_token', result.token);
+                    }
                     
                     // Store user info if remember me is checked
                     if (document.getElementById('rememberMe').checked) {
@@ -189,7 +194,7 @@ if (!isset($_SESSION['user_id'])) {
                     
                     // Redirect to dashboard
                     setTimeout(() => {
-                        window.location.href = 'enhanced_index.php';
+                        window.location.href = 'mess_index.php';
                     }, 1000);
                 } else {
                     showAlert('danger', result.message || 'Login failed. Please try again.');
